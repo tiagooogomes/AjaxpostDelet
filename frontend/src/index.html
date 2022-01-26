@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+   <head>
+        <meta charset="UTF-8" />
+        <title>AJAX | TIAGO</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Lily+Script+One&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+        <style>
+            body{
+    margin: 0;
+    background-color: #0E1A26;
+    color: #B8B7BD;
+}
+
+main{
+    width: 100%;
+    height: 590px;
+    }
+
+h1{
+    font-family: 'Lily Script One', cursive;
+    font-size: 75px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+h2{
+    font-size:30px;
+    font-family: 'Roboto', sans-serif;
+}
+
+p{
+    font-size: 30px;
+    font-family: 'Roboto', sans-serif;
+}
+
+#consultar{
+    height: 700px;
+    /* border: 2px solid red; */
+}
+
+#campo, select {
+    width: 25%;
+    height: 60px;
+    text-align: center;
+    background-color: #0E1A26;
+    border: #B8B7BD 3px solid;
+    color: #B8B7BD;
+    font-size: 30px;
+}
+
+#campo{
+    width: 35%;
+}
+
+input::placeholder{
+    color: #B8B7BD;
+}
+
+#text{
+    width: 100%;
+    height: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+#pesquisar {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#tabelapai{
+    width: 100%;
+    height: 390px;
+    overflow: auto;
+}
+
+th{
+    width: 5%;    
+    font-size: 25px;
+    height: 60px;
+}
+
+table{
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+}	
+
+#superior{
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#superior h2{
+    text-align: center;
+}
+
+span{
+    display: block;
+}
+
+#adicionar{
+    text-align: center;
+    width: 100%;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border: 2px solid green;
+
+}
+
+#adicionar input{
+    width: 25%;
+    height: 60px;
+    text-align: center;
+    background-color: #0E1A26;
+    border: #B8B7BD 3px solid;
+    color: #B8B7BD;
+    font-size: 30px;
+}
+
+#adicionar div{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+#adicionar #button{
+    height: 66px;
+    background-color: #B8B7BD;
+    color: #0E1A26;
+    cursor: pointer;
+}
+
+#deletar{
+    text-align: center;
+    width: 100%;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border: 2px solid red;
+}
+
+#deletar form{
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    border: 2px solid red;
+}
+
+#deletar input{
+    width: 20%;
+    height: 60px;
+}
+
+        </style>
+    </head>
+    <body>
+        <main>
+            <section id="consultar">
+                <section id="superior">
+                    <h1>Realizar Consulta ao Servidor</h1>
+                    <h2>Quantidade<span id="respostas"></span></h2>
+                </section>
+                <div id="tabelapai">
+                    <table>
+                        <thead>
+                            <th>ID</th>
+                            <th>NOME</th>
+                            <th>EMAIL</th>
+                        </thead>
+                        <tbody id="tabela"></tbody>
+                    </table>
+                </div>
+                <form id="pesquisar">
+                    <input type="text" id="campo" placeholder="SELECIONE UM FILTRO &#128274" disabled />
+                    <select  id="selecao"  onchange="definirplaceholder()"> 
+
+                        <option disabled selected value>Selecionar</option>
+                        <option value="id">ID</option>
+                        <option value="nome">Nome</option>
+                        <option value="email">Email</option>
+                    </select>
+                </form>
+            </section>
+            <section id="adicionar">
+                <h1>Adiciona ao servidor</h1>
+                <form>
+                    <div>
+                        <input type="number" id="id" placeholder="ID" />
+                        <input type="text" id="nome" placeholder="NOME" />
+                        <input type="text" id="email" placeholder="EMAIL" />
+                    </div>
+                    <input type="button" id="button" value="REGISTRAR"/>
+                </form>
+            </section>
+            <section id="deletar">
+                <h1>Deletar dp servidor</h1>
+                <form>
+                    <input type="number" id="numero"/>
+                    <input type="button" id="delet"/>
+                </form>
+            </section>
+        </main>
+
+        <script>
+            let sobreOquePesquisar = "";
+            let reciboSetTimeout = 0;
+            const imputText = document.getElementById("campo");
+            const button = document.getElementById("button");
+            const delet = document.getElementById("delet")
+
+
+            function definirplaceholder() {
+                const selecionar = document.getElementById("selecao");
+                const opcaoSelecionada = selecionar.options[selecionar.selectedIndex].value;
+                
+                if(opcaoSelecionada === "id"){
+                    imputText.placeholder = "INFORME O ID";
+                    sobreOquePesquisar = "pesquisaID";
+                    imputText.disabled = false;
+
+                } else if (opcaoSelecionada === "nome"){
+                    imputText.placeholder = "INFORME O NOME";
+                    sobreOquePesquisar = "pesquisaNome";
+                    imputText.disabled = false;
+
+                } else if (opcaoSelecionada === "email"){
+                    imputText.placeholder = "INFORME O EMAIL";
+                    sobreOquePesquisar = "pesquisaEmail"; 
+                    imputText.disabled = false;
+                
+                } else {
+                    imputText.placeholder = "SELECIONE UM FILTRO";
+                };
+            };
+
+            imputText.addEventListener("input", function() {
+                const oQueFoiPesquisado = imputText.value;
+                const respostas = document.getElementById("respostas");
+                const colocarNaTabela = document.getElementById("tabela");
+                
+                clearTimeout(reciboSetTimeout);
+
+                reciboSetTimeout = setTimeout(function(){
+
+                    if(oQueFoiPesquisado.length > 3){      
+
+                        fetch("/user?" + sobreOquePesquisar + "=" + oQueFoiPesquisado)
+                            .then(function(resposta){
+                                const teste = resposta.json();
+                                return teste
+                            })
+                            .then(function(users){
+                                colocarNaTabela.innerHTML = ""; 
+                                respostas.innerHTML = users.length;
+
+                                users.forEach((produto) => {
+
+                                    const linha = document.createElement("tr");
+                                    const imprimirID = document.createElement("th");
+                                    const imprimirNome = document.createElement("th");
+                                    const imprimirEmail = document.createElement("th");
+                                    
+                                    imprimirID.appendChild(document.createTextNode(produto.id));
+                                    imprimirNome.appendChild(document.createTextNode(produto.nome));
+                                    imprimirEmail.appendChild(document.createTextNode(produto.email));
+
+                                    linha.appendChild(imprimirID);
+                                    linha.appendChild(imprimirNome);
+                                    linha.appendChild(imprimirEmail);
+                                
+                                    colocarNaTabela.appendChild(linha);
+                                });
+                            });
+                    }else {
+                        colocarNaTabela.innerHTML = ""; 
+                    };       
+                }, 2000);    
+            });
+        
+
+            button.addEventListener("click", function() {
+                const id = Number(document.getElementById("id").value);
+                const nome = document.getElementById("nome").value;
+                const email = document.getElementById("email").value;
+
+
+                fetch("/user", {        
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        "id": id,
+                        "nome": nome,
+                        "email": email
+                    })
+                })
+
+                .then(function(resposta){
+                    const teste = resposta.json();
+                    return teste
+                })
+
+                .then(function(users){
+                    console.log(users);
+                });
+
+            });
+
+            delet.addEventListener('click', function() {
+
+                const i = document.getElementById("numero").value;
+
+                fetch("/user/" + i, {
+                    method: 'DELETE'
+                })
+
+                .then(function(resposta){
+                    const teste = resposta.json();
+                    return teste
+                })
+
+                .then(function(users){
+                    console.log(users);
+                });
+
+                
+            });
+        
+        
+        
+        </script>
+    </body>
+</html>        
